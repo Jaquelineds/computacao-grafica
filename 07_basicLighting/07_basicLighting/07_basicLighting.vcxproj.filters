@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <None Include="Shaders\Lighting\lamp.fs">
+      <Filter>Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\lamp.vs">
+      <Filter>Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\lighting.fs">
+      <Filter>Shaders\Lighting</Filter>
+    </None>
+    <None Include="Shaders\Lighting\lighting.vs">
+      <Filter>Shaders\Lighting</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header">
+      <UniqueIdentifier>{b1477bf4-6d93-4984-83af-913812dd07ea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{b0c0a58c-c874-4339-9e61-df9989699b48}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders">
+      <UniqueIdentifier>{f40e38ac-0051-4fa8-99d1-cccaf562f3d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Shaders\Lighting">
+      <UniqueIdentifier>{dd3aba3d-c875-48d6-a9e0-808811a4bbcb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Shader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
