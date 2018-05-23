@@ -34,8 +34,5 @@
     <ClInclude Include="Camera.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Shader_m.h">
-      <Filter>Header</Filter>
-    </ClInclude>
   </ItemGroup>
 </Project>
