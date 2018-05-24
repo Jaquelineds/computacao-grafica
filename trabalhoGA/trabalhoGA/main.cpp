@@ -6,11 +6,32 @@
 #include <gtc\matrix_transform.hpp>
 #include <gtc\type_ptr.hpp>
 #include "Shader.h"
+#include "Camera.h"
 #include "AssetManager.h"
 #include "Time.h"
 #include "OBJReader.h"
 #include "Renderer.h"
 #include "Time.h"
+
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height);
+void mouse_callback(GLFWwindow* window, double xpos, double ypos);
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
+void processInput(GLFWwindow *window);
+
+//screen
+const GLint WIDTH = 1000, HEIGHT = 800;
+
+// camera
+Camera camera(glm::vec3(0.0f, 0.0f, 3.0f));
+float lastX = WIDTH / 2.0f;
+float lastY = HEIGHT / 2.0f;
+bool firstMouse = true;
+
+// timing
+float deltaTime = 0.0f;	// time between current frame and last frame
+float lastFrame = 0.0f;
 
 int main() {
 
@@ -22,32 +43,37 @@ int main() {
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 	glfwWindowHint(GLFW_SAMPLES, 4);
 
-	GLFWwindow* window = glfwCreateWindow(800, 800, "OpenGL", nullptr, nullptr);
+	GLFWwindow* window = glfwCreateWindow(800, 800, "OBJ Reader", nullptr, nullptr);
+
 	int screenWidth, screenHeight;
 	glfwGetFramebufferSize(window, &screenWidth, &screenHeight);
 
-	if (window == nullptr) {
-		std::cout << "Failed to create GLFW Window" << std::endl;
+	if (nullptr == window) {
+		std::cout << "Falha ao criar janela GLFW" << std::endl;
 		glfwTerminate();
-
 		return EXIT_FAILURE;
 	}
 
 	glfwMakeContextCurrent(window);
-
 	glewExperimental = GL_TRUE;
 
-	if (glewInit() != GLEW_OK) {
-		std::cout << "Failed no init GLEW." << std::endl;
+	if (GLEW_OK != glewInit()) {
+		std::cout << "Falha ao criar janela GLEW" << std::endl;
 		return EXIT_FAILURE;
 	}
 
+	glfwMakeContextCurrent(window);
+	glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
+	glfwSetCursorPosCallback(window, mouse_callback);
+	glfwSetScrollCallback(window, scroll_callback);
+
 	glViewport(0, 0, screenWidth, screenHeight);
 
-	glEnable(GL_BLEND);	// Enables blending ( glBlendFunc )
+	glEnable(GL_DEPTH_TEST);
+
+	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 
 	Shader coreShader = Shader("Shaders/Core/core.vs", "Shaders/Core/core.fs");
@@ -75,44 +101,14 @@ int main() {
 	float angle = 0.0f;
 
 	while (!glfwWindowShouldClose(window)) {
+		GLfloat currentFrame = glfwGetTime();
+		deltaTime = currentFrame - lastFrame;
+		lastFrame = currentFrame;
 
 		glfwPollEvents();
+		processInput(window);
 
-		if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS) {
-			glfwSetWindowShouldClose(window, GLFW_TRUE);
-		}
-
-		if (glfwGetKey(window, 'A') == GLFW_PRESS) {
-			view = glm::translate(view, glm::vec3(0.06f, 0.0f, 0.0f));
-		}
-		if (glfwGetKey(window, 'D') == GLFW_PRESS) {
-			view = glm::translate(view, glm::vec3(-0.06f, 0.0f, 0.0f));
-		}
-
-		if (glfwGetKey(window, 'W') == GLFW_PRESS) {
-			view = glm::translate(view, glm::vec3(0.0f, 0.0f, 0.06f));
-		}
-		if (glfwGetKey(window, 'S') == GLFW_PRESS) {
-			view = glm::translate(view, glm::vec3(0.0f, 0.0f, -0.06f));
-		}
-
-		if (glfwGetKey(window, 'X') == GLFW_PRESS) {
-			view = glm::translate(view, glm::vec3(0.0f, 0.06f, 0.0f));
-		}
-		if (glfwGetKey(window, 'Z') == GLFW_PRESS) {
-			view = glm::translate(view, glm::vec3(0.0f, -0.06f, 0.0f));
-		}
-
-		if (glfwGetKey(window, 'Q') == GLFW_PRESS) {
-			angle += 1.0f;
-			view = glm::rotate(view, glm::radians(1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		}
-		if (glfwGetKey(window, 'E') == GLFW_PRESS) {
-			angle -= 1.0f;
-			view = glm::rotate(view, glm::radians(-1.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-		}
-
-		glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
+		glClearColor(0.9f, 0.9f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 		coreShader.Use();
@@ -131,4 +127,50 @@ int main() {
 	glfwTerminate();
 
 	return 0;
+}
+
+void processInput(GLFWwindow *window)
+{
+	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
+		glfwSetWindowShouldClose(window, true);
+
+	if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS)
+		camera.ProcessKeyboard(FORWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS)
+		camera.ProcessKeyboard(BACKWARD, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS)
+		camera.ProcessKeyboard(LEFT, deltaTime);
+	if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS)
+		camera.ProcessKeyboard(RIGHT, deltaTime);
+}
+
+
+void framebuffer_size_callback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+}
+
+void mouse_callback(GLFWwindow* window, double xpos, double ypos)
+{
+	if (firstMouse)
+	{
+		lastX = xpos;
+		lastY = ypos;
+		firstMouse = false;
+	}
+
+	float xoffset = xpos - lastX;
+	float yoffset = lastY - ypos; // reversed since y-coordinates go from bottom to top
+
+	lastX = xpos;
+	lastY = ypos;
+
+	camera.ProcessMouseMovement(xoffset, yoffset);
+}
+
+// glfw: whenever the mouse scroll wheel scrolls, this callback is called
+// ----------------------------------------------------------------------
+void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
+{
+	camera.ProcessMouseScroll(yoffset);
 }

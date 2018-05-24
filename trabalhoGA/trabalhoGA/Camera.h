@@ -1,159 +1,130 @@
-/*
-tdogl::Camera
-
-Copyright 2012 Thomas Dalling - http://tomdalling.com/
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
-#pragma once
+#ifndef CAMERA_H
+#define CAMERA_H
 
 #include <glm.hpp>
+#include <gtc/matrix_transform.hpp>
+
+#include <vector>
+
+// Defines several possible options for camera movement. Used as abstraction to stay away from window-system specific input methods
+enum Camera_Movement {
+	FORWARD,
+	BACKWARD,
+	LEFT,
+	RIGHT
+};
+
+// Default camera values
+const float YAW = -90.0f;
+const float PITCH = 0.0f;
+const float SPEED = 2.5f;
+const float SENSITIVITY = 0.1f;
+const float ZOOM = 45.0f;
 
 
-namespace tdogl {
+// An abstract camera class that processes input and calculates the corresponding Euler Angles, Vectors and Matrices for use in OpenGL
+class Camera
+{
+public:
+	// Camera Attributes
+	glm::vec3 Position;
+	glm::vec3 Front;
+	glm::vec3 Up;
+	glm::vec3 Right;
+	glm::vec3 WorldUp;
+	// Euler Angles
+	float Yaw;
+	float Pitch;
+	// Camera options
+	float MovementSpeed;
+	float MouseSensitivity;
+	float Zoom;
 
-	/**
-	A first-person shooter type of camera.
+	// Constructor with vectors
+	Camera(glm::vec3 position = glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3 up = glm::vec3(0.0f, 1.0f, 0.0f), float yaw = YAW, float pitch = PITCH) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+	{
+		Position = position;
+		WorldUp = up;
+		Yaw = yaw;
+		Pitch = pitch;
+		updateCameraVectors();
+	}
+	// Constructor with scalar values
+	Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch) : Front(glm::vec3(0.0f, 0.0f, -1.0f)), MovementSpeed(SPEED), MouseSensitivity(SENSITIVITY), Zoom(ZOOM)
+	{
+		Position = glm::vec3(posX, posY, posZ);
+		WorldUp = glm::vec3(upX, upY, upZ);
+		Yaw = yaw;
+		Pitch = pitch;
+		updateCameraVectors();
+	}
 
-	Set the properties of the camera, then use the `matrix` method to get the camera matrix for
-	use in the vertex shader.
+	// Returns the view matrix calculated using Euler Angles and the LookAt Matrix
+	glm::mat4 GetViewMatrix()
+	{
+		return glm::lookAt(Position, Position + Front, Up);
+	}
 
-	Includes the perspective projection matrix.
-	*/
-	class Camera {
-	public:
-		Camera();
+	// Processes input received from any keyboard-like input system. Accepts input parameter in the form of camera defined ENUM (to abstract it from windowing systems)
+	void ProcessKeyboard(Camera_Movement direction, float deltaTime)
+	{
+		float velocity = MovementSpeed * deltaTime;
+		if (direction == FORWARD)
+			Position += Front * velocity;
+		if (direction == BACKWARD)
+			Position -= Front * velocity;
+		if (direction == LEFT)
+			Position -= Right * velocity;
+		if (direction == RIGHT)
+			Position += Right * velocity;
+	}
 
-		/**
-		The position of the camera.
-		*/
-		const glm::vec3& position() const;
-		void setPosition(const glm::vec3& position);
-		void offsetPosition(const glm::vec3& offset);
+	// Processes input received from a mouse input system. Expects the offset value in both the x and y direction.
+	void ProcessMouseMovement(float xoffset, float yoffset, bool constrainPitch = true)
+	{
+		xoffset *= MouseSensitivity;
+		yoffset *= MouseSensitivity;
 
-		/**
-		The vertical viewing angle of the camera, in degrees.
+		Yaw += xoffset;
+		Pitch += yoffset;
 
-		Determines how "wide" the view of the camera is. Large angles appear to be zoomed out,
-		as the camera has a wide view. Small values appear to be zoomed in, as the camera has a
-		very narrow view.
+		// Make sure that when pitch is out of bounds, screen doesn't get flipped
+		if (constrainPitch)
+		{
+			if (Pitch > 89.0f)
+				Pitch = 89.0f;
+			if (Pitch < -89.0f)
+				Pitch = -89.0f;
+		}
 
-		The value must be between 0 and 180.
-		*/
-		float fieldOfView() const;
-		void setFieldOfView(float fieldOfView);
+		// Update Front, Right and Up Vectors using the updated Euler angles
+		updateCameraVectors();
+	}
 
-		/**
-		The closest visible distance from the camera.
+	// Processes input received from a mouse scroll-wheel event. Only requires input on the vertical wheel-axis
+	void ProcessMouseScroll(float yoffset)
+	{
+		if (Zoom >= 1.0f && Zoom <= 45.0f)
+			Zoom -= yoffset;
+		if (Zoom <= 1.0f)
+			Zoom = 1.0f;
+		if (Zoom >= 45.0f)
+			Zoom = 45.0f;
+	}
 
-		Objects that are closer to the camera than the near plane distance will not be visible.
-
-		Value must be greater than 0.
-		*/
-		float nearPlane() const;
-
-		/**
-		The farthest visible distance from the camera.
-
-		Objects that are further away from the than the far plane distance will not be visible.
-
-		Value must be greater than the near plane
-		*/
-		float farPlane() const;
-
-		/**
-		Sets the near and far plane distances.
-
-		Everything between the near plane and the var plane will be visible. Everything closer
-		than the near plane, or farther than the far plane, will not be visible.
-
-		@param nearPlane  Minimum visible distance from camera. Must be > 0
-		@param farPlane   Maximum visible distance from vamera. Must be > nearPlane
-		*/
-		void setNearAndFarPlanes(float nearPlane, float farPlane);
-
-		/**
-		A rotation matrix that determines the direction the camera is looking.
-
-		Does not include translation (the camera's position).
-		*/
-		glm::mat4 orientation() const;
-
-		/**
-		Offsets the cameras orientation.
-
-		The verticle angle is constrained between 85deg and -85deg to avoid gimbal lock.
-
-		@param upAngle     the angle (in degrees) to offset upwards. Negative values are downwards.
-		@param rightAngle  the angle (in degrees) to offset rightwards. Negative values are leftwards.
-		*/
-		void offsetOrientation(float upAngle, float rightAngle);
-
-		/**
-		Orients the camera so that is it directly facing `position`
-
-		@param position  the position to look at
-		*/
-		void lookAt(glm::vec3 position);
-
-		/**
-		The width divided by the height of the screen/window/viewport
-
-		Incorrect values will make the 3D scene look stretched.
-		*/
-		float viewportAspectRatio() const;
-		void setViewportAspectRatio(float viewportAspectRatio);
-
-		/** A unit vector representing the direction the camera is facing */
-		glm::vec3 forward() const;
-
-		/** A unit vector representing the direction to the right of the camera*/
-		glm::vec3 right() const;
-
-		/** A unit vector representing the direction out of the top of the camera*/
-		glm::vec3 up() const;
-
-		/**
-		The combined camera transformation matrix, including perspective projection.
-
-		This is the complete matrix to use in the vertex shader.
-		*/
-		glm::mat4 matrix() const;
-
-		/**
-		The perspective projection transformation matrix
-		*/
-		glm::mat4 projection() const;
-
-		/**
-		The translation and rotation matrix of the camera.
-
-		Same as the `matrix` method, except the return value does not include the projection
-		transformation.
-		*/
-		glm::mat4 view() const;
-
-	private:
-		glm::vec3 _position;
-		float _horizontalAngle;
-		float _verticalAngle;
-		float _fieldOfView;
-		float _nearPlane;
-		float _farPlane;
-		float _viewportAspectRatio;
-
-		void normalizeAngles();
-	};
-
-}
+private:
+	// Calculates the front vector from the Camera's (updated) Euler Angles
+	void updateCameraVectors()
+	{
+		// Calculate the new Front vector
+		glm::vec3 front;
+		front.x = cos(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+		front.y = sin(glm::radians(Pitch));
+		front.z = sin(glm::radians(Yaw)) * cos(glm::radians(Pitch));
+		Front = glm::normalize(front);
+		// Also re-calculate the Right and Up vector
+		Right = glm::normalize(glm::cross(Front, WorldUp));  // Normalize the vectors, because their length gets closer to 0 the more you look up or down which results in slower movement.
+		Up = glm::normalize(glm::cross(Right, Front));
+	}
+};
+#endif

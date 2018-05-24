@@ -16,11 +16,11 @@
     <Filter Include="Shaders\Core">
       <UniqueIdentifier>{1d3aeb94-334e-4a68-8b0d-2d03e0d5bbd9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="mesa">
+      <UniqueIdentifier>{ff4a61b1-db2c-4d04-b8c2-5da84a58799f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Camera.cpp">
-      <Filter>Source</Filter>
-    </ClCompile>
     <ClCompile Include="Group.cpp">
       <Filter>Source</Filter>
     </ClCompile>
@@ -73,5 +73,13 @@
     <None Include="Shaders\Core\core.vs">
       <Filter>Shaders\Core</Filter>
     </None>
+    <None Include="mesa\mesa01.mtl">
+      <Filter>mesa</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="mesa\mesa01.bmp">
+      <Filter>mesa</Filter>
+    </Image>
   </ItemGroup>
 </Project>
