@@ -1,0 +1,71 @@
+﻿  Texture.cpp
+c:\users\jaqueline\documents\_github\computação gráfica\trabalhoga\trabalhoga\texture.cpp(20): warning C4101: 'height': variável local não referenciada
+c:\users\jaqueline\documents\_github\computação gráfica\trabalhoga\trabalhoga\texture.cpp(20): warning C4101: 'width': variável local não referenciada
+c:\users\jaqueline\documents\_github\computação gráfica\trabalhoga\trabalhoga\texture.cpp(21): warning C4101: 'image': variável local não referenciada
+  Shader.cpp
+  Mesh.cpp
+c:\users\jaqueline\documents\_github\computação gráfica\trabalhoga\trabalhoga\group.h(49): warning C4267: 'return': conversão de 'size_t' para 'GLint', possível perda de dados
+  main.cpp
+c:\users\jaqueline\documents\_github\computação gráfica\trabalhoga\trabalhoga\group.h(49): warning C4267: 'return': conversão de 'size_t' para 'GLint', possível perda de dados
+c:\users\jaqueline\documents\_github\computação gráfica\trabalhoga\trabalhoga\objreader.h(216): warning C4101: 'e': variável local não referenciada
+  Group.cpp
+c:\users\jaqueline\documents\_github\computação gráfica\trabalhoga\trabalhoga\group.h(49): warning C4267: 'return': conversão de 'size_t' para 'GLint', possível perda de dados
+  Camera.cpp
+  Gerando Código...
+c:\users\jaqueline\documents\_github\computação gráfica\trabalhoga\trabalhoga\group.cpp(105): warning C4715: 'Group::GetStride': nem todos os caminhos de controle retornam um valor
+Group.obj : error LNK2001: símbolos externos indefinidos __imp___glewBindBuffer
+Group.obj : error LNK2001: símbolos externos indefinidos __imp___glewBufferData
+Group.obj : error LNK2001: símbolos externos indefinidos __imp___glewGenBuffers
+Group.obj : error LNK2001: símbolos externos indefinidos __imp___glewEnableVertexAttribArray
+Group.obj : error LNK2001: símbolos externos indefinidos __imp___glewVertexAttribPointer
+Group.obj : error LNK2001: símbolos externos indefinidos __imp___glewBindVertexArray
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewBindVertexArray
+Group.obj : error LNK2001: símbolos externos indefinidos __imp___glewGenVertexArrays
+main.obj : error LNK2019: símbolo externo indefinido __imp_glBlendFunc referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido __imp_glClear referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido __imp_glClearColor referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido __imp_glDepthFunc referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido __imp_glDrawArrays referenciado na função "public: void __cdecl Renderer::Render(void)" (?Render@Renderer@@QEAAXXZ)
+main.obj : error LNK2019: símbolo externo indefinido __imp_glEnable referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido __imp_glViewport referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido __imp_glewInit referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwInit referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwTerminate referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwWindowHint referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwCreateWindow referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwWindowShouldClose referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwSetWindowShouldClose referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwGetFramebufferSize referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwPollEvents referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwGetKey referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwMakeContextCurrent referenciado na função main
+main.obj : error LNK2019: símbolo externo indefinido glfwSwapBuffers referenciado na função main
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewAttachShader
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewCompileShader
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewCreateProgram
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewCreateShader
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewDeleteProgram
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewDeleteShader
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewGetProgramInfoLog
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewGetProgramiv
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewGetShaderInfoLog
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewGetShaderiv
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewLinkProgram
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewShaderSource
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewUniformMatrix4fv
+main.obj : error LNK2001: símbolos externos indefinidos __imp___glewUseProgram
+main.obj : error LNK2001: símbolos externos indefinidos __imp_glewExperimental
+Shader.obj : error LNK2019: símbolo externo indefinido __imp_glBindTexture referenciado na função "public: void __cdecl Shader::UseTexture(class std::basic_string<char,struct std::char_traits<char>,class std::allocator<char> >)" (?UseTexture@Shader@@QEAAXV?$basic_string@DU?$char_traits@D@std@@V?$allocator@D@2@@std@@@Z)
+Texture.obj : error LNK2001: símbolos externos indefinidos __imp_glBindTexture
+Shader.obj : error LNK2001: símbolos externos indefinidos __imp___glewActiveTexture
+Texture.obj : error LNK2001: símbolos externos indefinidos __imp___glewActiveTexture
+Shader.obj : error LNK2001: símbolos externos indefinidos __imp___glewGetAttribLocation
+Shader.obj : error LNK2001: símbolos externos indefinidos __imp___glewGetUniformLocation
+Texture.obj : error LNK2001: símbolos externos indefinidos __imp___glewGetUniformLocation
+Texture.obj : error LNK2019: símbolo externo indefinido __imp_glGenTextures referenciado na função "public: void __cdecl Texture::Load(char *,char *,unsigned int,int)" (?Load@Texture@@QEAAXPEAD0IH@Z)
+Texture.obj : error LNK2019: símbolo externo indefinido __imp_glTexImage2D referenciado na função "unsigned char * __cdecl AssetManager::LoadImage(char *)" (?LoadImage@AssetManager@@YAPEAEPEAD@Z)
+Texture.obj : error LNK2019: símbolo externo indefinido __imp_glTexParameteri referenciado na função "public: void __cdecl Texture::Load(char *,char *,unsigned int,int)" (?Load@Texture@@QEAAXPEAD0IH@Z)
+Texture.obj : error LNK2019: símbolo externo indefinido SOIL_load_image referenciado na função "unsigned char * __cdecl AssetManager::LoadImage(char *)" (?LoadImage@AssetManager@@YAPEAEPEAD@Z)
+Texture.obj : error LNK2019: símbolo externo indefinido SOIL_free_image_data referenciado na função "unsigned char * __cdecl AssetManager::LoadImage(char *)" (?LoadImage@AssetManager@@YAPEAEPEAD@Z)
+Texture.obj : error LNK2001: símbolos externos indefinidos __imp___glewUniform1i
+C:\Users\Jaqueline\Documents\_GitHub\Computação Gráfica\trabalhoGA\x64\Debug\trabalhoGA.exe : fatal error LNK1120: 51 externo não resolvidos
