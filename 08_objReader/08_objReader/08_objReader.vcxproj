@@ -143,7 +143,6 @@
     <None Include="Shaders\Lighting\lighting.vs" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="AssetManager.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Face.h" />
     <ClInclude Include="Group.h" />

@@ -3,8 +3,9 @@
 
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
+#include <SOIL2.h>
 
-#include "AssetManager.h"
+#include <string>
 
 class Texture
 {
@@ -12,6 +13,8 @@ private:
 	GLuint textureID;
 	GLint textureLocation;
 	GLshort textureNum;
+	static unsigned char* LoadImage(char* path);
+
 
 public:
 	Texture();

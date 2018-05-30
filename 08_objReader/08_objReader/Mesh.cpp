@@ -87,15 +87,15 @@ void Mesh::Bind()
 				finalVector->push_back(tempVertex->y);
 				finalVector->push_back(tempVertex->z);
 
+				if (tempTexInd->size() > 0) {
+					finalVector->push_back(tempMappin->s);
+					finalVector->push_back(tempMappin->t);
+				}
+
 				if (tempNormInd->size() > 0) {
 					finalVector->push_back(tempNormal->x);
 					finalVector->push_back(tempNormal->y);
 					finalVector->push_back(tempNormal->z);
-				}
-
-				if (tempTexInd->size() > 0) {
-					finalVector->push_back(tempMappin->s);
-					finalVector->push_back(tempMappin->t);
 				}
 			}
 

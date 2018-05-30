@@ -10,7 +10,6 @@
 #include <glm\gtc\matrix_transform.hpp>
 #include <glm\gtc\type_ptr.hpp>
 
-#include "AssetManager.h"
 #include "Shader.h"
 #include "Camera.h"
 #include "OBJReader.h"
@@ -85,46 +84,77 @@ int main() {
 
 	coreShader.Use();
 
-	Mesh* testMesh = OBJReader::Read("mesa/mesa01.obj");
-	testMesh->Bind();
-
-	/*Shader *shader = new Shader();
-	shader->UseTexture("mesa/image1.jpg");*/
-
-	Renderer *render = new Renderer();
-	render->AssociateMesh(testMesh, "Test");
+	Mesh* mesh = OBJReader::Read("mesa/mesa01.obj");
+	mesh->Bind();
 	
-	GLuint texture;
+	Renderer *render = new Renderer();
+	render->AssociateMesh(mesh, "mesh");
 
-	int width, height;
-	glGenTextures(1, &texture);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	coreShader.LoadTexture("mesa/image1.jpg", "texture1", "textureTable");
+	
+	GLfloat vertices[] = {
+		-0.5f, -0.5f, -0.5f, 
+		0.5f, -0.5f, -0.5f,  
+		0.5f,  0.5f, -0.5f,  
+		0.5f,  0.5f, -0.5f,  
+		-0.5f,  0.5f, -0.5f, 
+		-0.5f, -0.5f, -0.5f, 
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		-0.5f, -0.5f,  0.5f, 
+		0.5f, -0.5f,  0.5f,  
+		0.5f,  0.5f,  0.5f,  
+		0.5f,  0.5f,  0.5f,  
+		-0.5f,  0.5f,  0.5f, 
+		-0.5f, -0.5f,  0.5f, 
 
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		-0.5f,  0.5f,  0.5f, 
+		-0.5f,  0.5f, -0.5f, 
+		-0.5f, -0.5f, -0.5f, 
+		-0.5f, -0.5f, -0.5f, 
+		-0.5f, -0.5f,  0.5f, 
+		-0.5f,  0.5f,  0.5f, 
 
-	unsigned char *image = SOIL_load_image("mesa/image1.jpg", &width, &height, 0, SOIL_LOAD_RGBA);
+		0.5f,  0.5f,  0.5f,  
+		0.5f,  0.5f, -0.5f,  
+		0.5f, -0.5f, -0.5f,  
+		0.5f, -0.5f, -0.5f,  
+		0.5f, -0.5f,  0.5f,  
+		0.5f,  0.5f,  0.5f,  
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-	glGenerateMipmap(GL_TEXTURE_2D);
-	SOIL_free_image_data(image);
-	glBindTexture(GL_TEXTURE_2D, 0);
+		-0.5f, -0.5f, -0.5f, 
+		0.5f, -0.5f, -0.5f,  
+		0.5f, -0.5f,  0.5f,  
+		0.5f, -0.5f,  0.5f,  
+		-0.5f, -0.5f,  0.5f, 
+		-0.5f, -0.5f, -0.5f, 
 
+		-0.5f,  0.5f, -0.5f, 
+		0.5f,  0.5f, -0.5f,  
+		0.5f,  0.5f,  0.5f,  
+		0.5f,  0.5f,  0.5f,  
+		-0.5f,  0.5f,  0.5f, 
+		-0.5f,  0.5f, -0.5f, 
+	};
 
-/*	GLuint lightVAO, VBO;
-	glGenBuffers(1, &VBO);
+/*
+	GLuint lightVAO, VBO;
 	glGenVertexArrays(1, &lightVAO);
+	glGenBuffers(1, &VBO);
 
-	glBindVertexArray(lightVAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+	
+	glBindVertexArray(lightVAO);
 
 	//Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid *)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
 	glEnableVertexAttribArray(0);
+
+	glBindBuffer(GL_ARRAY_BUFFER, VBO);
+	
 	glBindVertexArray(0);
+	*/
+
 
 	/*
 
@@ -149,6 +179,9 @@ int main() {
 	int projLoc = coreShader.Uniform("projection");
 	projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);*/
 	
+	glm::mat4 projection(1);
+	projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+
 	while (!glfwWindowShouldClose(window)) {
 		GLfloat currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
@@ -160,20 +193,11 @@ int main() {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-		coreShader.Use();
-
-		glActiveTexture(GL_TEXTURE0);
-		//Texture *texture = new Texture();
-		
-		//glBindTexture(GL_TEXTURE_2D, texture->GetTextureId());
-		glBindTexture(GL_TEXTURE_2D, texture);
-		glUniform1i(glGetUniformLocation(coreShader.program, "texture1"), 0);
-
-		glm::mat4 projection(1);
+		//glm::mat4 projection(1);
 		glm::mat4 model(1);
 		glm::mat4 view(1);
 
-		projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+		//projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		view = camera.GetViewMatrix();
 
 		GLint modelLoc = glGetUniformLocation(coreShader.program, "model");
@@ -188,14 +212,17 @@ int main() {
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 
-		render->Render();
+		
+		coreShader.Use();
+		coreShader.UseTexture("textureTable");
 
+		render->Render();
 		/*
 		lampShader.Use();
 
-		modelLoc = glGetUniformLocation(lampShader.Program, "model");
-		viewLoc = glGetUniformLocation(lampShader.Program, "view");
-		projLoc = glGetUniformLocation(lampShader.Program, "projection");
+		modelLoc = glGetUniformLocation(lampShader.program, "model");
+		viewLoc = glGetUniformLocation(lampShader.program, "view");
+		projLoc = glGetUniformLocation(lampShader.program, "projection");
 
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
@@ -203,10 +230,11 @@ int main() {
 		model = glm::translate(model, lightPos);
 		model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
+		
 		glBindVertexArray(lightVAO);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);*/
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+		*/
 		glfwSwapBuffers(window);
 	}
 

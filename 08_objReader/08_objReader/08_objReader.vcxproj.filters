@@ -58,9 +58,6 @@
     <ClInclude Include="Camera.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="AssetManager.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="Face.h">
       <Filter>Header</Filter>
     </ClInclude>
