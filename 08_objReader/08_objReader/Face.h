@@ -40,8 +40,6 @@ public:
 	void Bind() { ; }
 
 private:
-
-	// Indexes for the actual values in the Mesh object.
 	std::vector<int> *verts, *norms, *texts;
 
 };

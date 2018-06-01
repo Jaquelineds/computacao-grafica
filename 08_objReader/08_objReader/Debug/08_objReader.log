@@ -2,13 +2,13 @@
   main.cpp
 c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\objreader.h(216): warning C4101: 'e': variável local não referenciada
 c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(186): warning C4244: 'inicializando': conversão de 'double' para 'GLfloat', possível perda de dados
-c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(283): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
-c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(284): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
-c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(288): warning C4244: 'inicializando': conversão de 'double' para 'float', possível perda de dados
-c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(289): warning C4244: 'inicializando': conversão de 'double' para 'float', possível perda de dados
-c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(291): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
-c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(292): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
-c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(301): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
+c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(293): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(294): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(298): warning C4244: 'inicializando': conversão de 'double' para 'float', possível perda de dados
+c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(299): warning C4244: 'inicializando': conversão de 'double' para 'float', possível perda de dados
+c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(301): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(302): warning C4244: '=': conversão de 'double' para 'float', possível perda de dados
+c:\users\jaqueline\documents\github\computação gráfica\08_objreader\08_objreader\main.cpp(311): warning C4244: 'argumento': conversão de 'double' para 'float', possível perda de dados
   Gerando Código...
   Ignorando... (nenhuma alteração relevante detectada)
   Texture.cpp

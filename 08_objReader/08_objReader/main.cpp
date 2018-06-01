@@ -34,7 +34,7 @@ bool firstMouse = true;
 float deltaTime = 0.0f;	// time between current frame and last frame
 float lastFrame = 0.0f;
 
-glm::vec3 lightPos(1.2f, 1.0f, 2.0f);
+glm::vec3 lightPos(0.0f, 0.0f, 3.0f);
 
 int main() {
 	glfwInit();
@@ -84,13 +84,13 @@ int main() {
 
 	coreShader.Use();
 
-	Mesh* mesh = OBJReader::Read("mesa/mesa01.obj");
+	Mesh* mesh = OBJReader::Read("paintball/cenaPaintball.obj");
 	mesh->Bind();
 	
 	Renderer *render = new Renderer();
 	render->AssociateMesh(mesh, "mesh");
 
-	coreShader.LoadTexture("mesa/image1.jpg", "texture1", "textureTable");
+	coreShader.LoadTexture("paintball/grama01.jpg", "texture1", "textureTable");
 	
 	GLfloat vertices[] = {
 		-0.5f, -0.5f, -0.5f, 
@@ -136,7 +136,7 @@ int main() {
 		-0.5f,  0.5f, -0.5f, 
 	};
 
-/*
+	/*
 	GLuint lightVAO, VBO;
 	glGenVertexArrays(1, &lightVAO);
 	glGenBuffers(1, &VBO);
@@ -153,7 +153,7 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	
 	glBindVertexArray(0);
-	*/
+	
 
 
 	/*
@@ -193,11 +193,37 @@ int main() {
 		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+
 		//glm::mat4 projection(1);
 		glm::mat4 model(1);
 		glm::mat4 view(1);
+		/*
+		lampShader.Use();
 
-		//projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+		GLint modelLoc = glGetUniformLocation(lampShader.program, "model");
+		GLint viewLoc = glGetUniformLocation(lampShader.program, "view");
+		GLint projLoc = glGetUniformLocation(lampShader.program, "projection");
+
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+		model = glm::mat4(1);
+		model = glm::translate(model, lightPos);
+		model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+
+		glBindVertexArray(lightVAO);
+		//glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+	
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+		view = camera.GetViewMatrix();
+
+		lightPos.x = camera.Position.x;
+		lightPos.y = camera.Position.y;
+		lightPos.z = camera.Position.z;
+		*/
+
+		projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		view = camera.GetViewMatrix();
 
 		GLint modelLoc = glGetUniformLocation(coreShader.program, "model");
@@ -217,24 +243,8 @@ int main() {
 		coreShader.UseTexture("textureTable");
 
 		render->Render();
-		/*
-		lampShader.Use();
-
-		modelLoc = glGetUniformLocation(lampShader.program, "model");
-		viewLoc = glGetUniformLocation(lampShader.program, "view");
-		projLoc = glGetUniformLocation(lampShader.program, "projection");
-
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		model = glm::mat4(1);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+			
 		
-		glBindVertexArray(lightVAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-		*/
 		glfwSwapBuffers(window);
 	}
 
