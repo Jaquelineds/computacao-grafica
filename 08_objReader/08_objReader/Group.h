@@ -1,12 +1,15 @@
 #ifndef GROUP_H
 #define GROUP_H
+#endif
 
 #include <GL\glew.h>
 
 #include <string>
 #include <vector>
 
+#include "Shader.h"
 #include "Face.h"
+#include "Material.h"
 
 enum GroupType
 {
@@ -29,18 +32,37 @@ public:
 	void SetName(std::string name) {
 		this->name = name;
 	};
-	void SetMaterial(std::string material) {
-		this->material = material;
-	};
 
 	std::string GetName() {
 		return name;
 	};
-	std::string GetMaterial() {
+
+	void SetMaterial(Material* material) {
+		this->material = material;
+		this->hasMaterial = true;
+	};
+
+	Material* GetMaterial() {
 		return material;
 	};
 
+	void Group::SetMaterialName(std::string name) {
+		this->nameMat = name;
+	}
+
+	std::string Group::GetMaterialName() { 
+		return this->nameMat; 
+	}
+
+	bool HasMaterial() {
+		if (this->hasMaterial)
+			return true;
+		else
+			return false;
+	};
+
 	void AddFace(std::vector<int>* vertexIndices, std::vector<int>* normalIndices, std::vector<int>* mappingIndices);
+	
 	std::vector<Face*>* GetFaces() {
 		return faces;
 	}
@@ -66,22 +88,24 @@ public:
 		this->type = type;
 	}
 
+	void SetShader(Shader* s) { 
+		shaderObj = s; 
+	}
+
 	void DefineType();
+
 
 private:
 
 	std::string name;
-	std::string material;
-
+	Material *material = NULL;
+	std::string nameMat;
+	bool hasMaterial;
 	GroupType type;
 
 	std::vector<Face*>* faces;
-
+	Shader* shaderObj;
 	GLuint vao, vbo;
-
-
+	
 	int GetStride();
-
 };
-
-#endif

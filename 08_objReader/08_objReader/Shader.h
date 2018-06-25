@@ -13,8 +13,6 @@
 #include "Texture.h"
 #include <glm/glm.hpp>
 
-
-
 class Shader
 {
 public:
@@ -90,7 +88,6 @@ public:
 			std::cout << "ERROR::SHADER::VERTEX::COMPILATION_FAILED\n" << infoLog << std::endl;
 		}
 
-
 		// Fragment Shader
 		fragment = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragment, 1, &fShaderCode, nullptr);
@@ -132,7 +129,6 @@ public:
 		glDeleteProgram(this->program);
 	}
 
-	void UseTexture(std::string textureName);
 	void LoadTexture(char* path, char* textureUniformName, std::string textureName);
 
 	GLint Attribute(const GLchar* name);

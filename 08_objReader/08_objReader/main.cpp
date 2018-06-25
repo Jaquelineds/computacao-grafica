@@ -13,7 +13,6 @@
 #include "Shader.h"
 #include "Camera.h"
 #include "OBJReader.h"
-#include "Renderer.h"
 #include "Time.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -78,109 +77,77 @@ int main() {
 
 	glDepthFunc(GL_LESS);
 
-	Shader coreShader = Shader("Shaders/Core/core.vert", "Shaders/Core/core.frag");
-	//Shader lightingShader("Shaders/Lighting/lighting.vs", "Shaders/Lighting/lighting.fs");
-	//Shader lampShader("Shaders/Lighting/lamp.vs", "Shaders/Lighting/lamp.fs");
 
-	coreShader.Use();
+	Shader *coreShader = new Shader("Shaders/Core/core.vert", "Shaders/Core/core.frag");
 
-	Mesh* mesh = OBJReader::Read("paintball/cenaPaintball.obj");
-	mesh->Bind();
-	
-	Renderer *render = new Renderer();
-	render->AssociateMesh(mesh, "mesh");
+	coreShader->Use();
 
-	coreShader.LoadTexture("paintball/grama01.jpg", "texture1", "textureTable");
-	
-	GLfloat vertices[] = {
-		-0.5f, -0.5f, -0.5f, 
-		0.5f, -0.5f, -0.5f,  
-		0.5f,  0.5f, -0.5f,  
-		0.5f,  0.5f, -0.5f,  
-		-0.5f,  0.5f, -0.5f, 
-		-0.5f, -0.5f, -0.5f, 
+	//read the necessary obj files to a vector
+	std::vector<Mesh*>* meshVec = new std::vector<Mesh*>();
+	std::string objs = "cenaPaintball.obj end";
+	istringstream ss(objs);
+	string temp;
+	ss >> temp;
+	while (temp != "end") {
+		meshVec->push_back(OBJReader::Read(temp.c_str()));
+		ss >> temp;
+	}
 
-		-0.5f, -0.5f,  0.5f, 
-		0.5f, -0.5f,  0.5f,  
-		0.5f,  0.5f,  0.5f,  
-		0.5f,  0.5f,  0.5f,  
-		-0.5f,  0.5f,  0.5f, 
-		-0.5f, -0.5f,  0.5f, 
+	for (std::vector<Mesh*>::iterator obj = meshVec->begin(); obj != meshVec->end(); ++obj) {
+		//read MTL files to the meshes
+		(*obj)->setMaterials(MTLReader::read((*obj)->GetMeterialFile()));
+	}
 
-		-0.5f,  0.5f,  0.5f, 
-		-0.5f,  0.5f, -0.5f, 
-		-0.5f, -0.5f, -0.5f, 
-		-0.5f, -0.5f, -0.5f, 
-		-0.5f, -0.5f,  0.5f, 
-		-0.5f,  0.5f,  0.5f, 
+	for (std::vector<Mesh*>::iterator obj = meshVec->begin(); obj != meshVec->end(); ++obj) {
+		//print material list for all objs
+		std::vector<Material*> *tempMats = (*obj)->GetMaterials();
+		for (std::vector<Material*>::iterator mat = tempMats->begin(); mat != tempMats->end(); ++mat) {
+			std::cout << (*mat)->GetName() << std::endl;
+		}
+	}
 
-		0.5f,  0.5f,  0.5f,  
-		0.5f,  0.5f, -0.5f,  
-		0.5f, -0.5f, -0.5f,  
-		0.5f, -0.5f, -0.5f,  
-		0.5f, -0.5f,  0.5f,  
-		0.5f,  0.5f,  0.5f,  
+	//assign materials to the groups within the meshes
+	for (std::vector<Mesh*>::iterator obj = meshVec->begin(); obj != meshVec->end(); ++obj) {
 
-		-0.5f, -0.5f, -0.5f, 
-		0.5f, -0.5f, -0.5f,  
-		0.5f, -0.5f,  0.5f,  
-		0.5f, -0.5f,  0.5f,  
-		-0.5f, -0.5f,  0.5f, 
-		-0.5f, -0.5f, -0.5f, 
+		std::vector<Group*> *tempGroups = (*obj)->GetGroups();
+		std::vector<Material*> *tempMaterials = (*obj)->GetMaterials();
+		std::string name;
+		//iterate through the groups and add the materials to them
+		for (std::vector<Group*>::iterator it = tempGroups->begin(); it != tempGroups->end(); ++it) {
+			//set shader on the group
+			(*it)->SetShader(coreShader);
+			for (std::vector<Material*>::iterator itMaterial = tempMaterials->begin(); itMaterial != tempMaterials->end(); ++itMaterial) {
+				if ((*it)->GetMaterialName() == (*itMaterial)->GetName()) {
+					Material *newMat = new Material((*itMaterial)->GetName());
+					(*it)->SetMaterial((*itMaterial));
+				}
+			}
+		}
+	}
 
-		-0.5f,  0.5f, -0.5f, 
-		0.5f,  0.5f, -0.5f,  
-		0.5f,  0.5f,  0.5f,  
-		0.5f,  0.5f,  0.5f,  
-		-0.5f,  0.5f,  0.5f, 
-		-0.5f,  0.5f, -0.5f, 
-	};
+	//bind all the meshes
+	for (std::vector<Mesh*>::iterator obj = meshVec->begin(); obj != meshVec->end(); ++obj) {
+		(*obj)->Bind();
+	}
 
 	/*
-	GLuint lightVAO, VBO;
-	glGenVertexArrays(1, &lightVAO);
-	glGenBuffers(1, &VBO);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
-	
-	glBindVertexArray(lightVAO);
-
-	//Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid *)0);
-	glEnableVertexAttribArray(0);
-
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	
-	glBindVertexArray(0);
-	
-
-
-	/*
-
-	float angle = 0.0f;
-
-	glm::mat4 projection(1);
-	projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-
 	glm::mat4 model(1.0f);
-	int modelLoc = coreShader.Uniform("model");
+	int modelLoc = coreShader->Uniform("model");
 	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 
 	glm::mat4 view(1.0f);
-	int viewLoc = coreShader.Uniform("view");
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -5.0f));
+	int viewLoc = coreShader->Uniform("view");
+	view = glm::translate(view, glm::vec3(0.0f, -5.0f, -70.0f));
 
-	glm::mat4 projection(1);
-	int projLoc = coreShader.Uniform("projection");
-	projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-
-	/*glm::mat4 projection(1.0f);
-	int projLoc = coreShader.Uniform("projection");
-	projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);*/
+	glm::mat4 projection(1.0f);
+	int projLoc = coreShader->Uniform("projection");
+	projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
 	
+	float angle = 0.0f;*/
+
 	glm::mat4 projection(1);
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
+
 
 	while (!glfwWindowShouldClose(window)) {
 		GLfloat currentFrame = glfwGetTime();
@@ -190,45 +157,18 @@ int main() {
 		glfwPollEvents();
 		processInput(window);
 
-		glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
+		glClearColor(0.6f, 0.6f, 0.6f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-
-		//glm::mat4 projection(1);
 		glm::mat4 model(1);
 		glm::mat4 view(1);
-		/*
-		lampShader.Use();
-
-		GLint modelLoc = glGetUniformLocation(lampShader.program, "model");
-		GLint viewLoc = glGetUniformLocation(lampShader.program, "view");
-		GLint projLoc = glGetUniformLocation(lampShader.program, "projection");
-
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-		model = glm::mat4(1);
-		model = glm::translate(model, lightPos);
-		model = glm::scale(model, glm::vec3(0.2f)); // Make it a smaller cube
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-
-		glBindVertexArray(lightVAO);
-		//glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-	
-		projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-		view = camera.GetViewMatrix();
-
-		lightPos.x = camera.Position.x;
-		lightPos.y = camera.Position.y;
-		lightPos.z = camera.Position.z;
-		*/
 
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		view = camera.GetViewMatrix();
 
-		GLint modelLoc = glGetUniformLocation(coreShader.program, "model");
-		GLint viewLoc = glGetUniformLocation(coreShader.program, "view");
-		GLint projLoc = glGetUniformLocation(coreShader.program, "projection");
+		GLint modelLoc = glGetUniformLocation(coreShader->program, "model");
+		GLint viewLoc = glGetUniformLocation(coreShader->program, "view");
+		GLint projLoc = glGetUniformLocation(coreShader->program, "projection");
 
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
@@ -237,24 +177,43 @@ int main() {
 		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
 		
-		coreShader.Use();
-		coreShader.UseTexture("textureTable");
-
-		render->Render();
-			
+		coreShader->Use();
 		
+		std::vector<Group*>* currentGroups = nullptr;
+
+		//iterate through the different meshes
+		for (std::vector<Mesh*>::iterator obj = meshVec->begin(); obj != meshVec->end(); ++obj) {
+			currentGroups = (*obj)->GetGroups();
+
+			// Iterare through groups
+			for (std::vector<Group*>::iterator group = currentGroups->begin(); group != currentGroups->end(); ++group) {
+				if ((*group)->GetType() != GroupType::EMPTY && (*group)->GetType() != GroupType::NONE) {
+					glBindVertexArray((*group)->VAO());
+
+					int textureLocation = coreShader->Uniform("texture1");
+					glEnable(GL_TEXTURE_2D);
+					if ((*group)->HasMaterial()) {
+						Material *mat = (*group)->GetMaterial();
+						if (mat->GetHasTexture()) {
+							int textureId = mat->getTextureId();
+
+							glUniform1i(textureLocation, textureId);
+							glBindTexture(GL_TEXTURE_2D, textureId);
+						}
+					}
+					glDrawArrays(GL_TRIANGLES, 0, (*group)->GetFacesSize() * 3);
+					glDisable(GL_TEXTURE_2D);
+				}
+			}
+		}
+
 		glfwSwapBuffers(window);
 	}
 
-	coreShader.Delete();
-	//glDeleteVertexArrays(1, &lightVAO);
-	//glDeleteBuffers(1, &VBO);
-
+	coreShader->Delete();
 	glfwTerminate();
 	return EXIT_SUCCESS;
-
 }
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
@@ -282,7 +241,6 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 	// height will be significantly larger than specified on retina displays.
 	glViewport(0, 0, width, height);
 }
-
 
 // glfw: whenever the mouse moves, this callback is called
 // -------------------------------------------------------

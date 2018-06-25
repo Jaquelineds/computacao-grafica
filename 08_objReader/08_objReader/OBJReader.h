@@ -12,6 +12,7 @@
 #include <stdlib.h>
 
 #include "Mesh.h"
+#include "MTLReader.h"
 #include <map>
 
 namespace OBJReader
@@ -25,6 +26,7 @@ namespace OBJReader
 		F,
 		G,
 		MTLLIB,
+		USEMTL,
 		COMMENTARY,
 	};
 
@@ -36,12 +38,10 @@ namespace OBJReader
 		{ "f", ObjTypes::F },
 		{ "g", ObjTypes::G },
 		{ "mtllib", ObjTypes::MTLLIB},
+		{ "usemtl", ObjTypes::USEMTL },
 		{ "#", ObjTypes::COMMENTARY },
 	};
 
-
-	// TODO: Is it faster to keep the file open in a stream
-	// or to save it all in a single stream and then iterate through it?
 
 	static Mesh* Read(const GLchar* path) {
 
@@ -55,8 +55,10 @@ namespace OBJReader
 		try {
 			file.open(path);
 
+			std::cout << path;
+
 			if (!file.is_open()) {
-				std::cout << "ERROR::OBJREADER::PATH ERROR";
+				std::cout << "ERRO::OBJREADER::ERRO NA ABERTURA DO ARQUIVO";
 			}
 
 			std::string line, temp;
@@ -65,7 +67,6 @@ namespace OBJReader
 
 			while (!file.eof()) {
 
-				// Clearing for safety
 				sstream = std::stringstream();
 				line = temp = "";
 
@@ -80,7 +81,7 @@ namespace OBJReader
 				{
 				case OBJReader::V:
 				{
-					float x, y, z;	// Is it faster to keep code here or to call another method that does this (for a more clear code)
+					float x, y, z;
 					sstream >> x >> y >> z;
 					newMesh->AddVertex(glm::vec3(x, y, z));
 					break;
@@ -96,6 +97,8 @@ namespace OBJReader
 				{
 					float x, y;
 					sstream >> x >> y;
+					// test to invert v = 1 - v to treat objs created on blender
+					y = 1.0 - y;
 					newMesh->AddMapping(glm::vec2(x, y));
 					break;
 				}
@@ -152,10 +155,8 @@ namespace OBJReader
 						currentGroup->AddFace(posV, normV, texV);
 					}
 					else {
-						std::cout << "ERROR::OBJREADER::NO GROUP DEFINED FOR FACE AT LINE " << lineCounter << std::endl;
+						std::cout << "ERRO::OBJREADER::GRUPO NÃO DEFINIDO PARA FACE NA LINHA " << lineCounter << std::endl;
 
-
-						// TODO: FIND A BETTER WAY TO DO THIS FOR THE LOVE OF TALOS
 						bool addedGroup = false;
 						std::vector<Group*> *tempGroups = newMesh->GetGroups();
 						for (std::vector<Group*>::iterator it = tempGroups->begin(); it != tempGroups->end(); ++it) {
@@ -196,14 +197,27 @@ namespace OBJReader
 
 					break;
 				}
-				case OBJReader::MTLLIB:
 
+				case OBJReader::MTLLIB:
+				{
+					std::string mtlFile;
+					std::getline(sstream, mtlFile);
+					newMesh->setMaterialFile(mtlFile.substr(1, std::string::npos));
 					break;
+				}
+				case OBJReader::USEMTL:
+				{
+					std::string mtlGroup;
+					std::getline(sstream, mtlGroup);
+					currentGroup->SetMaterialName(mtlGroup.substr(1, std::string::npos));
+					break;
+
+				}
 				case OBJReader::COMMENTARY:
 				case OBJReader::NONE:
 					break;
 				default:
-					std::cout << "Not a valid line at " << lineCounter << std::endl;
+					std::cout << "Erro na leitura da linha " << lineCounter << std::endl;
 					break;
 				}
 
@@ -216,16 +230,14 @@ namespace OBJReader
 		catch (const std::ifstream::failure& e) {
 
 			if (!file.eof()) {
-				std::cout << "ERROR::OBJREADER::FILE NOT SUCCESUFULLY READ" << std::endl;
+				std::cout << "ERRO::OBJREADER::O ARQUIVO NÃO PODE SER LIDO" << std::endl;
 			}
 
 		}
 
 		file.close();
 		return nullptr;
-
 	}
-
-};
+}
 
 #endif

@@ -1,22 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <None Include="Shaders\Lighting\lamp.fs">
-      <Filter>Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\lamp.vs">
-      <Filter>Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\lighting.fs">
-      <Filter>Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Lighting\lighting.vs">
-      <Filter>Shaders\Lighting</Filter>
-    </None>
-    <None Include="Shaders\Core\core.frag">
+    <None Include="Shaders\Core\core.vert">
       <Filter>Shaders\Core</Filter>
     </None>
-    <None Include="Shaders\Core\core.vert">
+    <None Include="Shaders\Core\core.frag">
       <Filter>Shaders\Core</Filter>
     </None>
   </ItemGroup>
@@ -29,9 +17,6 @@
     </Filter>
     <Filter Include="Shaders">
       <UniqueIdentifier>{f40e38ac-0051-4fa8-99d1-cccaf562f3d7}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Shaders\Lighting">
-      <UniqueIdentifier>{dd3aba3d-c875-48d6-a9e0-808811a4bbcb}</UniqueIdentifier>
     </Filter>
     <Filter Include="Shaders\Core">
       <UniqueIdentifier>{a2c369e6-f64d-4c09-8b08-f1237ea51082}</UniqueIdentifier>
@@ -70,13 +55,16 @@
     <ClInclude Include="OBJReader.h">
       <Filter>Header</Filter>
     </ClInclude>
-    <ClInclude Include="Renderer.h">
-      <Filter>Header</Filter>
-    </ClInclude>
     <ClInclude Include="Texture.h">
       <Filter>Header</Filter>
     </ClInclude>
     <ClInclude Include="Shader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="MTLReader.h">
+      <Filter>Header</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
       <Filter>Header</Filter>
     </ClInclude>
   </ItemGroup>

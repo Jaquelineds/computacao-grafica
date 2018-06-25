@@ -1,4 +1,5 @@
 #include "Mesh.h"
+#include "Material.h"
 
 Mesh::Mesh()
 {
@@ -6,6 +7,7 @@ Mesh::Mesh()
 	normals = new std::vector<glm::vec3*>();
 	mappings = new std::vector<glm::vec2*>();
 	groups = new std::vector<Group*>();
+	std::string material_file;
 }
 
 
@@ -53,6 +55,7 @@ void Mesh::AddMapping(glm::vec2 mapping)
 
 void Mesh::Bind()
 {
+
 	std::vector<GLfloat> *finalVector = new std::vector<GLfloat>();
 	std::vector<int> *tempVertInd, *tempNormInd, *tempTexInd;
 	std::vector<Face*>* facesTemp;
@@ -75,7 +78,6 @@ void Mesh::Bind()
 			tempNormInd = (*facesIt)->GetNorms();
 			tempTexInd = (*facesIt)->GetTexts();
 
-			//TODO: Optimization
 			for (int i = 0; i < tempVertInd->size(); i++) {
 				// Index has -1 because vectors start at index 0 and obj at 1.
 
@@ -97,14 +99,12 @@ void Mesh::Bind()
 					finalVector->push_back(tempNormal->y);
 					finalVector->push_back(tempNormal->z);
 				}
-			}
 
+			}
 		}
 
 		if (finalVector->size() > 0) {
 			(*groupsIt)->Bind(finalVector);
 		}
-
-	}
-	
+	}	
 }
