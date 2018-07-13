@@ -17,13 +17,12 @@ class MTLReader
 
 public:
 
-	static std::vector<Material*>* read(string filePath) {
+	static std::vector<Material*>* read(string filePath, int &textureNum) {
 		std::vector<Material*>* materials = new std::vector<Material*>();
 
 		cout << "Leitura mtl " << filePath << endl;
 
 		Material* current = NULL;
-		int textureNum = 0;
 
 		ifstream myFile(filePath);
 		while (!myFile.eof()) {

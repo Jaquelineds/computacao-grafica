@@ -31,7 +31,7 @@ void main () {
 	vec3 lightDir = normalize(lightPos - Position);
 	//float dot_prod = dot(lightDir, norm);
 	//dot_prod = max(dot_prod, 0.0);
-	float diff = max(dot(norm, lightDir), 0.0);
+	float diff = max(dot(norm,lightDir), 0.0);
 	vec3 diffuse = Ld * Kd * diff;
 
 	// Specular

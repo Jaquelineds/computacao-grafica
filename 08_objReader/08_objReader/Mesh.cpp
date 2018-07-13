@@ -10,7 +10,6 @@ Mesh::Mesh()
 	std::string material_file;
 }
 
-
 Mesh::~Mesh()
 {
 }

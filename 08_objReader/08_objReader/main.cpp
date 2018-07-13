@@ -1,10 +1,8 @@
 #include <iostream>
-#include <stb_image.h>
 
 #define GLEW_STATIC
 #include <GL\glew.h>
 #include <GLFW\glfw3.h>
-
 #include <SOIL2.h>
 #include <glm\glm.hpp>
 #include <glm\gtc\matrix_transform.hpp>
@@ -19,6 +17,15 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void mouse_callback(GLFWwindow* window, double xpos, double ypos);
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset);
 void processInput(GLFWwindow *window);
+void readCurvePoints(const GLchar* path);
+void scaleCurvePoints(std::vector<glm::vec3*>* points, float factor);
+float calculateAngle(int indexA, int indexB);
+
+int textureNum = 0;
+float scaleFactor = 45.0f;
+
+std::vector<glm::vec3*>* curvePoints = new std::vector<glm::vec3*>();
+std::vector<glm::vec3*>* scaledCurvePoints = new std::vector<glm::vec3*>();
 
 //screen
 const GLint WIDTH = 1000, HEIGHT = 800;
@@ -76,15 +83,15 @@ int main() {
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	glDepthFunc(GL_LESS);
-
-
+	
 	Shader *coreShader = new Shader("Shaders/Core/core.vert", "Shaders/Core/core.frag");
-
 	coreShader->Use();
 
-	//read the necessary obj files to a vector
+	readCurvePoints("originalCurve.txt");
+	scaleCurvePoints(curvePoints, scaleFactor);
+
 	std::vector<Mesh*>* meshVec = new std::vector<Mesh*>();
-	std::string objs = "cenaPaintball.obj end";
+	std::string objs = "moto.obj curve.obj end";
 	istringstream ss(objs);
 	string temp;
 	ss >> temp;
@@ -94,27 +101,27 @@ int main() {
 	}
 
 	for (std::vector<Mesh*>::iterator obj = meshVec->begin(); obj != meshVec->end(); ++obj) {
-		//read MTL files to the meshes
-		(*obj)->setMaterials(MTLReader::read((*obj)->GetMeterialFile()));
+		// Read MTL files to the meshes
+		(*obj)->setMaterials(MTLReader::read((*obj)->GetMeterialFile(), textureNum));
 	}
 
 	for (std::vector<Mesh*>::iterator obj = meshVec->begin(); obj != meshVec->end(); ++obj) {
-		//print material list for all objs
+		// Print material list for all objs
 		std::vector<Material*> *tempMats = (*obj)->GetMaterials();
 		for (std::vector<Material*>::iterator mat = tempMats->begin(); mat != tempMats->end(); ++mat) {
 			std::cout << (*mat)->GetName() << std::endl;
 		}
 	}
 
-	//assign materials to the groups within the meshes
+	// Assign materials to the groups within the meshes
 	for (std::vector<Mesh*>::iterator obj = meshVec->begin(); obj != meshVec->end(); ++obj) {
 
 		std::vector<Group*> *tempGroups = (*obj)->GetGroups();
 		std::vector<Material*> *tempMaterials = (*obj)->GetMaterials();
 		std::string name;
-		//iterate through the groups and add the materials to them
+		// Iterate through the groups and add the materials to them
 		for (std::vector<Group*>::iterator it = tempGroups->begin(); it != tempGroups->end(); ++it) {
-			//set shader on the group
+			// Set shader on the group
 			(*it)->SetShader(coreShader);
 			for (std::vector<Material*>::iterator itMaterial = tempMaterials->begin(); itMaterial != tempMaterials->end(); ++itMaterial) {
 				if ((*it)->GetMaterialName() == (*itMaterial)->GetName()) {
@@ -124,30 +131,16 @@ int main() {
 			}
 		}
 	}
-
-	//bind all the meshes
+	// Bind all the meshes
 	for (std::vector<Mesh*>::iterator obj = meshVec->begin(); obj != meshVec->end(); ++obj) {
 		(*obj)->Bind();
 	}
 
-	/*
-	glm::mat4 model(1.0f);
-	int modelLoc = coreShader->Uniform("model");
-	model = glm::rotate(model, glm::radians(0.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-
-	glm::mat4 view(1.0f);
-	int viewLoc = coreShader->Uniform("view");
-	view = glm::translate(view, glm::vec3(0.0f, -5.0f, -70.0f));
-
-	glm::mat4 projection(1.0f);
-	int projLoc = coreShader->Uniform("projection");
-	projection = glm::perspective(glm::radians(45.0f), (float)screenWidth / (float)screenHeight, 0.1f, 100.0f);
-	
-	float angle = 0.0f;*/
-
 	glm::mat4 projection(1);
 	projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
-
+	
+	float angle = 0.0f;
+	int movementIndex = 0;
 
 	while (!glfwWindowShouldClose(window)) {
 		GLfloat currentFrame = glfwGetTime();
@@ -166,20 +159,20 @@ int main() {
 		projection = glm::perspective(glm::radians(camera.Zoom), (float)WIDTH / (float)HEIGHT, 0.1f, 100.0f);
 		view = camera.GetViewMatrix();
 
+		if (GLFW_PRESS == glfwGetKey(window, GLFW_KEY_ESCAPE)) {
+			glfwSetWindowShouldClose(window, 1);
+		}
+
 		GLint modelLoc = glGetUniformLocation(coreShader->program, "model");
 		GLint viewLoc = glGetUniformLocation(coreShader->program, "view");
 		GLint projLoc = glGetUniformLocation(coreShader->program, "projection");
-
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
 		
 		coreShader->Use();
-		
+
+		glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+		glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(projLoc, 1, GL_FALSE, glm::value_ptr(projection));
+				
 		std::vector<Group*>* currentGroups = nullptr;
 
 		//iterate through the different meshes
@@ -197,9 +190,19 @@ int main() {
 						Material *mat = (*group)->GetMaterial();
 						if (mat->GetHasTexture()) {
 							int textureId = mat->getTextureId();
-
 							glUniform1i(textureLocation, textureId);
 							glBindTexture(GL_TEXTURE_2D, textureId);
+						}
+						if ((*group)->GetName() == " road") {
+							glm::mat4 transform = glm::scale(model, glm::vec3(scaleFactor));
+							glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(transform));
+						}
+						else {
+							glm::mat4 transform = glm::translate(model, glm::vec3(curvePoints->at(movementIndex)->x, curvePoints->at(movementIndex)->y, curvePoints->at(movementIndex)->z));
+							angle = -calculateAngle(movementIndex, movementIndex + 5);
+							angle += 1.5708f; // Add 90º to fix initial direction from the motocycle							
+							transform = glm::rotate(transform, angle, glm::vec3(0, 1, 0));
+							glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(transform));
 						}
 					}
 					glDrawArrays(GL_TRIANGLES, 0, (*group)->GetFacesSize() * 3);
@@ -207,11 +210,12 @@ int main() {
 				}
 			}
 		}
-
+		movementIndex += 1;
+		if (curvePoints->size() -5 == movementIndex)
+			movementIndex = 0;
 		glfwSwapBuffers(window);
 	}
-
-	coreShader->Delete();
+	coreShader->Delete();	
 	glfwTerminate();
 	return EXIT_SUCCESS;
 }
@@ -267,4 +271,75 @@ void mouse_callback(GLFWwindow* window, double xpos, double ypos)
 void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {
 	camera.ProcessMouseScroll(yoffset);
+}
+
+void scaleCurvePoints(std::vector<glm::vec3*>* points, float factor) {
+	for (int i = 0; i < points->size(); i++) {
+		scaledCurvePoints->push_back(new glm::vec3(points->at(i)->x*factor, points->at(i)->y, points->at(i)->z*factor));
+	}
+	curvePoints = scaledCurvePoints;
+}
+
+void readCurvePoints(const GLchar* path) {
+
+	std::ifstream file;
+	file.exceptions(std::ifstream::badbit);
+
+	try {
+		file.open(path);
+
+		if (!file.is_open()) {
+			std::cout << "ERRO::Pontos da Curva::ERRO NO ARQUIVO";
+		}
+
+		std::string line, temp;
+		std::stringstream sstream;
+		int lineCounter = 1;
+
+		while (!file.eof()) {
+
+			sstream = std::stringstream();
+			line = temp = "";
+
+			//get first line of the file
+			std::getline(file, line);
+
+			//get content of the line
+			sstream << line;
+			sstream >> temp;
+
+			if (temp == "v") {
+				float x, y, z;
+				sstream >> x >> y >> z;
+				curvePoints->push_back(new glm::vec3(x, y, z));
+			}
+			lineCounter++;
+		}
+		file.close();
+	}
+	catch (const std::ifstream::failure& e) {
+		if (!file.eof()) {
+			std::cout << "ERROR::Pontos da Curva::ERRO NA LEITURA DO ARQUIVO" << std::endl;
+		}
+	}
+}
+
+float calculateAngle(int indexA, int indexB) {
+	
+	glm::vec3* a = curvePoints->at(indexA);
+	glm::vec3* b;
+
+	if (indexA == curvePoints->size() - 5) {
+		b = curvePoints->at(0);
+	}
+	else {
+		b = curvePoints->at(indexB);
+	}
+
+	GLfloat dx = b->x - a->x;
+	GLfloat dz = b->z - a->z;
+
+	GLfloat angle = glm::atan(dz, dx);
+
+	return angle;
 }
